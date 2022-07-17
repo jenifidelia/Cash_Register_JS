@@ -1,0 +1,191 @@
+function checkCashRegister(price, cash, cid) {
+  
+  //function that returns the total of cash we have in the drawer
+  function totalCash (arr){
+    let arrCopy = [].concat(cid)    //copy cid from parameter into arrCopy
+    
+    //function that extract the amount of money we have for each currency
+    function extractAmount (arr) {
+      let newArr =[];
+      for (let i = 0; i < arr.length; i++){
+        newArr.push(arr[i][1]);
+      } 
+      //console.log(newArr);
+      return newArr;
+    }
+
+    let tempCid= extractAmount(arrCopy);
+    let sumOfArray = tempCid.reduce((partialSum, a) => partialSum + a, 0);
+    return sumOfArray;
+  }
+  
+
+  //Variables
+  let cashInDrawerTotalValue  =  totalCash(cid)   //function that returns the total of cash we have in the drawer
+  var changeDue = cash - price;
+
+  var change = [];        //[],cid,[changeArr]
+  var status = ""         //"INSUFFICIENT_FUNDS", "CLOSED","OPEN" 
+
+
+  //check if cashInDrawerTotalValue is less than changeDue
+  if (cashInDrawerTotalValue < changeDue){           
+            return {'status': "INSUFFICIENT_FUNDS", 'change': []};    //if so (insufficient funds)
+  }
+  if (cashInDrawerTotalValue === changeDue){  
+  //check if cashInDrawerTotalValue is equal to changeDue, if so (closed)                              
+            return {'status': "CLOSED", 'change': cid}
+  }
+
+ //check if cashInDrawerTotalValue is more than changeDue
+  if (cashInDrawerTotalValue > changeDue){      
+      
+      //function that checks to see if you can return exact change     
+      function checkForChange(arrOfCashInDrawer, changeDue){
+
+        //breakdown arrOfCashInDrawer to see how many of each currency we have
+        let arrCopy = [].concat(arrOfCashInDrawer)  //copy cid from parameter into arrCopy
+        let newArr =[];
+        for (let i = 0; i < arrCopy.length; i++){
+            newArr.push(arrCopy[i][1]);
+        } 
+
+        let arrayForChange = [];
+        let exactChangeBool;
+
+        var totalPenny = newArr[0];
+        var totalNickel = newArr[1];
+        var totalDime = newArr[2];
+        var totalQuarter = newArr[3];
+        var totalOne = newArr[4];
+        var totalFive = newArr[5];
+        var totalTen = newArr[6];
+        var totalTwenty = newArr[7];
+        var totalOneHundred = newArr[8];
+
+
+        //if change due is equal to or more than 100
+        if (changeDue >= 100){
+          var counter = 0;
+          while (changeDue >= 100 && totalOneHundred>=100) {
+            counter = counter +1;
+            changeDue = changeDue - 100;
+            totalOneHundred= totalOneHundred - 100;
+          }
+          arrayForChange.push(["ONE HUNDRED", counter*100])
+        }  if (changeDue >= 20){                     //if change due is equal to or more than 20
+          var counter = 0;
+          while (changeDue >= 20 && totalTwenty>=20) {
+            counter = counter +1;
+            changeDue = changeDue - 20;
+            totalTwenty= totalTwenty - 20;
+          }
+          arrayForChange.push(["TWENTY", counter*20])
+        }  if (changeDue >= 10){                     //if change due is equal to or more than 10
+          var counter = 0;
+          while (changeDue > 10 && totalTen>=10) {
+            counter = counter +1;
+            changeDue = changeDue - 10;
+            totalTen= totalTen - 10;
+          }
+          arrayForChange.push(["TEN", counter*10])
+        } if (changeDue >= 5){                     //if change due is equal to or more than 5
+          var counter = 0;
+          while (changeDue > 5 && totalFive>=5) {
+            counter = counter +1;
+            changeDue = changeDue - 5;
+            totalFive= totalFive - 5;
+          }
+          arrayForChange.push(["FIVE", counter*5])
+        } if (changeDue >= 1){                     //if change due is equal to or more than 1
+          var counter = 0;
+          while (changeDue > 1 && totalOne>=1) {
+            counter = counter +1;
+            changeDue = changeDue - 1;
+            totalOne= totalOne - 1;
+          }
+          arrayForChange.push(["ONE", counter*1])
+        } if (changeDue >= 0.25){                     //if change due is more equal to or than 0.25 
+          var counter = 0;
+          while (changeDue >= 0.25 && totalQuarter>=0) {
+            counter = counter +1;
+            changeDue = changeDue - 0.25;
+            totalQuarter= totalQuarter -0.25;
+          }
+          arrayForChange.push(["QUARTER", counter*0.25])
+        } if (changeDue >= 0.1 ){                     //if change due is equal to or more than 0.1
+          var counter = 0;
+          while (changeDue >= 0.1 && totalDime>=0) {
+            counter = counter +1;
+            changeDue = changeDue - 0.1;
+            totalDime= totalDime -0.1;
+          }
+          arrayForChange.push(["DIME", counter*0.1])
+        } if (changeDue >= 0.05 ){                     //if change due is equal to or more than 0.05
+          var counter = 0;
+          while (changeDue >= 0.05 && totalNickel>=0) {
+            counter = counter +1;
+            changeDue = changeDue - 0.05;
+            totalNickel= totalNickel -0.05;
+          }
+          arrayForChange.push(["NICKEL", counter*0.05])
+        }if (changeDue >= 0.01 ){                     //if change due is equal to or more than 0.01
+          var counter = 0;
+          while (changeDue >= 0.01 && totalPenny>=0.01) {
+            counter = counter +1;
+            changeDue = changeDue - 0.01;
+            totalPenny= totalPenny -0.01;
+            changeDue = changeDue.toFixed(2);
+          }
+          arrayForChange.push(["PENNY", counter*0.01])
+        }
+        
+
+        if(changeDue>0){
+          exactChangeBool = false;
+        }else{
+          exactChangeBool = true;
+        }
+        return [exactChangeBool,arrayForChange]
+      }
+
+      let checkForExactChange = checkForChange(cid,changeDue)
+      var exactChange = checkForExactChange[0];
+      var changeArr = checkForExactChange[1];
+
+      //check to see if you can return exact change     
+      if(exactChange){    
+        status = "OPEN"                  //if you can return exact change then its (open)
+        change = changeArr;              //sorted in highest to lowest order   
+        return {'status':status,'change':change};        
+      } else {
+        status = "INSUFFICIENT_FUNDS"    //if you can't return exact change then its (insufficient funds)
+        change = [];                         
+        return {'status':status,'change':change};  
+      }
+  }
+}
+
+
+let case1 = checkCashRegister(19.5, 20, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]]); 
+//should return {status: "OPEN", change: [["QUARTER", 0.5]]}.
+
+let case2 = checkCashRegister(3.26, 100, [["PENNY", 1.01], ["NICKEL", 2.05], ["DIME", 3.1], ["QUARTER", 4.25], ["ONE", 90], ["FIVE", 55], ["TEN", 20], ["TWENTY", 60], ["ONE HUNDRED", 100]]); 
+//should return {status: "OPEN", change: [["TWENTY", 60], ["TEN", 20], ["FIVE", 15], ["ONE", 1], ["QUARTER", 0.5], ["DIME", 0.2], ["PENNY", 0.04]]}.
+
+let case3 = checkCashRegister(19.5, 20, [["PENNY", 0.01], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 1], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]);
+//should return {status: "INSUFFICIENT_FUNDS", change: []}.
+
+let case4 = checkCashRegister(19.5, 20, [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]) 
+//should return {status: "CLOSED", change: [["PENNY", 0.5], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]}.
+
+let case5 = checkCashRegister(19.5, 20, [["PENNY", 0.01], ["NICKEL", 0], ["DIME", 0], ["QUARTER", 0], ["ONE", 0], ["FIVE", 0], ["TEN", 0], ["TWENTY", 0], ["ONE HUNDRED", 0]]) 
+//should return {status: "INSUFFICIENT_FUNDS", change: []}.
+
+//console.log('case1= ',case1);
+//console.log('case2= ',case2);
+//console.log('case3= ',case3);
+//console.log('case4= ',case4);
+//console.log('case5= ',case5);
+
+
